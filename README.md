@@ -1,67 +1,93 @@
-Sistema de Registro Universitario - Haskell (Versión A)
+# Sistema de Registro Universitario — Haskell
 
-Este proyecto es el desarrollo de la Versión A de la Práctica I para la asignatura ST0244 - Lenguajes de Programación en la Universidad EAFIT. Consiste en un sistema funcional para gestionar el ingreso y salida de estudiantes del campus.
-Especificaciones de la Práctica
+> **Práctica I · Versión A** — Asignatura ST0244 Lenguajes de Programación · Universidad EAFIT
 
-    Materia: Programación con Lenguajes de Programación.
+---
 
-    Docente: Alexander Narváez Berrío.
+## Descripción
 
-    Valor: 15% de la nota final.
+Sistema funcional para gestionar el **ingreso y salida de estudiantes del campus universitario**, desarrollado íntegramente en el paradigma funcional con Haskell.
 
-    Paradigma: Funcional.
+---
 
-Requerimientos Funcionales
+## Especificaciones
 
-El sistema implementa las siguientes funciones exigidas en la guía:
+| Campo | Detalle |
+|---|---|
+| **Materia** | ST0244 — Lenguajes de Programación |
+| **Docente** | Alexander Narváez Berrío |
+| **Valor** | 15% de la nota final |
+| **Paradigma** | Funcional |
 
-    Check In: Registro de entrada del estudiante solicitando su ID y almacenando la hora de ingreso.
+---
 
-    Search by ID: Búsqueda de estudiantes que se encuentran actualmente dentro de la universidad.
+## Funcionalidades
 
-    Time Calculation: Cálculo automático de la estancia en formato legible (horas y minutos).
+| # | Función | Descripción |
+|---|---|---|
+| 1 | **Check In** | Registro de entrada del estudiante solicitando su ID y almacenando la hora de ingreso |
+| 2 | **Search by ID** | Búsqueda de estudiantes que se encuentran actualmente dentro de la universidad |
+| 3 | **Time Calculation** | Cálculo automático de la estancia en formato legible (horas y minutos) |
+| 4 | **Students List** | Carga de registros desde `University.txt` y visualización en terminal |
+| 5 | **Check Out** | Registro de salida y actualización de la persistencia de datos |
 
-    Students List: Carga de registros desde el archivo University.txt y visualización en terminal.
+---
 
-    Check Out: Registro de salida y actualización de la persistencia de datos.
+## Análisis Técnico
 
-Análisis Técnico para la Defensa
+### 1. Modelo de Datos e Inmutabilidad
 
-Para la sustentación presencial, es fundamental comprender los siguientes pilares del código:
-1. Modelo de Datos e Inmutabilidad
+En Haskell **no se modifican variables**. Se utiliza una estructura `Estudiante` definida con `data`. Para "actualizar" un registro (como en el Check Out), el programa usa `map` para recorrer la lista actual y generar una **nueva lista** con el dato cambiado, preservando la integridad de los datos originales.
 
-En Haskell, no modificamos variables. Utilizamos una estructura de datos Estudiante definida con data. Para "actualizar" un registro (como en el Check Out), el programa utiliza la función map para recorrer la lista actual y generar una nueva lista con el dato cambiado, manteniendo la integridad de los datos originales.
-2. Gestión de Tiempo
+### 2. Gestión de Tiempo
 
-Se implementó la Opción 3 de la guía: el tiempo se almacena como un número entero que representa los minutos transcurridos desde las 00:00.
+Se implementó la **Opción 3** de la guía: el tiempo se almacena como un entero que representa los minutos transcurridos desde las `00:00`.
 
-    Ejemplo: Las 08:30 AM se almacenan como 510 minutos.
+```
+08:30 AM  →  510 minutos
+```
 
-    Esto facilita el cálculo de permanencia mediante una resta simple: TiempoSalida - TiempoEntrada.
+Esto permite calcular la permanencia mediante una resta simple:
 
-3. Persistencia y Lazy Evaluation
+```
+Permanencia = TiempoSalida - TiempoEntrada
+```
 
-El programa lee y escribe en el archivo University.txt. Debido a que Haskell es un lenguaje de evaluación perezosa (Lazy), el código fuerza la lectura completa del archivo antes de permitir una nueva escritura, evitando conflictos de acceso al archivo durante la ejecución en vivo.
-4. Recursividad en el Menú
+### 3. Persistencia y Lazy Evaluation
 
-A falta de ciclos imperativos (como while), el menú principal es una función recursiva. Al finalizar cada operación, la función se llama a sí misma para mantener el programa en ejecución hasta que el usuario decida salir.
-Instrucciones de Ejecución
-Requisitos
+El programa lee y escribe en `University.txt`. Debido a que Haskell es un lenguaje de **evaluación perezosa (Lazy)**, el código fuerza la lectura completa del archivo antes de permitir una nueva escritura, evitando conflictos de acceso durante la ejecución.
 
-    Tener instalado GHC (Glasgow Haskell Compiler).
+### 4. Recursividad en el Menú
 
-Pasos para ejecutar
+A falta de ciclos imperativos (`while`), el menú principal es una **función recursiva**. Al finalizar cada operación, la función se llama a sí misma para mantener el programa en ejecución hasta que el usuario decida salir.
 
-    Coloque el archivo Main.hs y University.txt en la misma carpeta.
+---
 
-    Abra una terminal y ejecute:
-    Bash
+## Instrucciones de Ejecución
 
-    runhaskell Main.hs
+### Requisitos
 
-Formato de Almacenamiento (University.txt)
+- [GHC — Glasgow Haskell Compiler](https://www.haskell.org/ghc/)
 
-El archivo guarda los datos en formato de lista de estructuras nativas de Haskell:
+### Pasos
+
+1. Coloque `Main.hs` y `University.txt` en la misma carpeta.
+2. Abra una terminal en esa carpeta y ejecute:
+
+```bash
+runhaskell Main.hs
+```
+
+---
+
+## Formato de Almacenamiento
+
+Los datos se persisten en `University.txt` como lista de estructuras nativas de Haskell:
+
+```haskell
 Estudiante {idEst = "123", entrada = 480, salida = -1}
+```
 
-    Un valor de -1 en salida indica que el estudiante aún permanece en la universidad.
+> **Nota:** Un valor de `-1` en el campo `salida` indica que el estudiante aún permanece dentro de la universidad.
+
+---
