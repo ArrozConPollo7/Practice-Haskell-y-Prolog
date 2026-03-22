@@ -1,48 +1,46 @@
 import System.IO
 import Data.List
 
--- Estructura de datos para el estudiante [cite: 40, 92]
+-- Estructura de datos para el estudiante
 data Estudiante = Estudiante {
-    idEst     :: String,
-    [cite_start]entrada   :: Int,    -- Tiempo en minutos desde 00:00 [cite: 55]
-    [cite_start]salida    :: Int     -- -1 si aún está en la universidad [cite: 18, 19]
+    idEst     :: String,entrada   :: Int,    -- Tiempo en minutos desde 00:00salida    :: Int     -- -1 si aún está en la universidad
 } deriving (Show, Read)
 
 archivoDatos = "University.txt"
 
--- 1) Check In: Registrar entrada [cite: 13, 14]
+-- 1) Check In: Registrar entrada
 registrarEntrada :: String -> Int -> [Estudiante] -> [Estudiante]
 registrarEntrada id hEntrada lista = Estudiante id hEntrada (-1) : lista
 
--- 2) Search by Student ID [cite: 17, 87]
+-- 2) Search by Student ID
 buscarEstudiante :: String -> [Estudiante] -> IO ()
 buscarEstudiante id lista = do
     let resultado = find (\e -> idEst e == id && salida e == -1) lista
     case resultado of
-        Just e  -> putStrLn $ "Estudiante en campus. Entrada: " ++ show (entrada e) ++ " min." [cite: 18]
-        Nothing -> putStrLn "Error: Estudiante no encontrado o ya salio." [cite: 19]
+        Just e  -> putStrLn $ "Estudiante en campus. Entrada: " ++ show (entrada e) ++ " min."
+        Nothing -> putStrLn "Error: Estudiante no encontrado o ya salio."
 
--- 3) Time Calculation [cite: 20, 21, 23]
+-- 3) Time Calculation
 formatearTiempo :: Int -> String
 formatearTiempo totalMinutos = 
     let horas = totalMinutos `div` 60
         mins = totalMinutos `mod` 60
     in show horas ++ "h " ++ show mins ++ "m"
 
--- 4) Students List: Cargar y mostrar [cite: 24, 28, 89]
+-- 4) Students List: Cargar y mostrar
 listarEstudiantes :: [Estudiante] -> IO ()
 listarEstudiantes [] = putStrLn "La lista esta vacia."
 listarEstudiantes lista = mapM_ (\e -> putStrLn $ "ID: " ++ idEst e ++ " | In: " ++ show (entrada e) ++ " | Out: " ++ show (salida e)) lista
 
--- 5) Check Out: Registrar salida [cite: 29, 30, 35]
+-- 5) Check Out: Registrar salida
 registrarSalida :: String -> Int -> [Estudiante] -> [Estudiante]
 registrarSalida id hSalida lista = 
     map (\e -> if idEst e == id && salida e == -1 then e { salida = hSalida } else e) lista
 
--- Gestión de Archivos Nativa [cite: 42, 49]
+-- Gestión de Archivos Nativa
 guardarArchivo :: [Estudiante] -> IO ()
 guardarArchivo lista = do
-    writeFile archivoDatos (unlines (map show lista)) [cite: 44]
+    writeFile archivoDatos (unlines (map show lista))
 
 cargarArchivo :: IO [Estudiante]
 cargarArchivo = do
@@ -53,10 +51,10 @@ cargarArchivo = do
         then return (map read (lines contenido))
         else return []
 
--- Menú Principal [cite: 11]
+-- Menú Principal
 menu :: IO ()
 menu = do
-    lista <- cargarArchivo [cite: 43]
+    lista <- cargarArchivo
     putStrLn "\n--- REGISTRO UNIVERSITARIO (HASKELL) ---"
     putStrLn "1. Check In"
     putStrLn "2. Search by ID"
@@ -73,7 +71,7 @@ menu = do
             putStr "Hora entrada (minutos): "
             t <- getLine
             let nuevaLista = registrarEntrada id (read t) lista
-            guardarArchivo nuevaLista [cite: 44]
+            guardarArchivo nuevaLista
             menu
         "2" -> do
             putStr "ID a buscar: "
@@ -92,8 +90,8 @@ menu = do
             case est of
                 Just e -> do
                     let sTime = read t
-                    putStrLn $ "Tiempo en la U: " ++ formatearTiempo (sTime - entrada e) [cite: 21, 23]
-                    guardarArchivo (registrarSalida id sTime lista) [cite: 44]
+                    putStrLn $ "Tiempo en la U: " ++ formatearTiempo (sTime - entrada e)
+                    guardarArchivo (registrarSalida id sTime lista)
                 Nothing -> putStrLn "No encontrado."
             menu
         "5" -> putStrLn "Saliendo..."
