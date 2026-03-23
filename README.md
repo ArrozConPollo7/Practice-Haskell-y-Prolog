@@ -23,34 +23,45 @@ Sistema para gestionar el **ingreso y salida de estudiantes del campus**, implem
 
 | # | Función | Descripción |
 |---|---|---|
-| 1 | **Check In** | Registro de entrada solicitando ID y almacenando la hora de ingreso |
-| 2 | **Search by ID** | Búsqueda de estudiantes actualmente dentro de la universidad |
-| 3 | **Time Calculation** | Cálculo automático de la estancia en horas y minutos |
-| 4 | **Students List** | Carga de registros desde `University.txt` y visualización en terminal |
-| 5 | **Check Out** | Registro de salida y actualización de la persistencia de datos |
+| 1 | **Check In** | Registra la entrada del estudiante con su ID y hora en formato `HH:MM` |
+| 2 | **Search by Student ID** | Muestra ficha detallada del estudiante si está actualmente en campus |
+| 3 | **Time Calculation** | Calcula y muestra el tiempo de permanencia de un estudiante ya egresado |
+| 4 | **List Students** | Lista todos los registros en memoria con tabla de ID, entrada, salida y estado |
+| 5 | **Check Out** | Registra la salida, calcula la duración y actualiza el archivo |
 
 ### Análisis Técnico
 
 **1. Modelo de Datos e Inmutabilidad**
 
-En Haskell no se modifican variables. Se utiliza una estructura `Estudiante` definida con `data`. Para "actualizar" un registro (como en el Check Out), el programa usa `map` para recorrer la lista y generar una **nueva lista** con el dato cambiado, preservando la integridad de los datos originales.
+Los estudiantes se representan con una estructura `Estudiante` definida con `data`. Para "actualizar" un registro (como en el Check Out), el programa usa `map` para recorrer la lista y generar una **nueva lista** con el dato modificado, sin alterar los datos originales — principio central del paradigma funcional.
 
-**2. Gestión de Tiempo**
+**2. Gestión de Tiempo con Validación**
 
-El tiempo se almacena como un entero que representa los minutos transcurridos desde las `00:00` (Opción 3 de la guía).
+La hora se ingresa en formato `HH:MM` y se convierte a minutos totales desde `00:00` mediante `parsearHora`. La función `pedirHora` valida la entrada y repite la solicitud si el formato es incorrecto.
 
 ```
-08:30 AM  →  510 minutos
+08:30  →  510 minutos
 Permanencia = TiempoSalida - TiempoEntrada
 ```
 
 **3. Persistencia y Lazy Evaluation**
 
-El programa lee y escribe en `University.txt`. Dado que Haskell usa **evaluación perezosa**, el código fuerza la lectura completa del archivo antes de permitir una nueva escritura, evitando conflictos de acceso.
+El archivo `University.txt` se carga **una sola vez** al iniciar `main`, y la lista resultante se pasa como argumento al menú en cada iteración. Esto evita lecturas repetidas y los conflictos de acceso propios de la evaluación perezosa de Haskell. Las escrituras se realizan con `writeFile` tras cada operación de Check In o Check Out.
 
-**4. Recursividad en el Menú**
+**4. Menú con Recursividad Paramétrica**
 
-A falta de ciclos imperativos, el menú principal es una **función recursiva** que se llama a sí misma al finalizar cada operación, manteniendo el programa activo hasta que el usuario decida salir.
+El menú recibe la lista actual como argumento (`menu :: [Estudiante] -> IO ()`) y se llama recursivamente con la lista actualizada tras cada operación. Esto reemplaza el estado mutable: el "estado" del programa vive en el argumento de la función.
+
+**5. Salida Formateada**
+
+Los registros se muestran en tabla con columnas alineadas. La función auxiliar `minutosAHora` reconvierte los minutos almacenados al formato `HH:MM` para la visualización.
+
+```
+  ID       | Entrada | Salida  | Estado
+  ---------+---------+---------+----------
+  12345678 | 08:30   | 17:00   | SALIO
+  87654321 | 09:15   |   --    | EN CAMPUS
+```
 
 ### Instrucciones de Ejecución
 
@@ -66,7 +77,7 @@ runhaskell Main.hs
 ### Formato de Almacenamiento
 
 ```haskell
-Estudiante {idEst = "123", entrada = 480, salida = -1}
+Estudiante {idEst = "12345678", entrada = 510, salida = -1}
 ```
 
 > Un valor de `-1` en `salida` indica que el estudiante aún permanece en la universidad.
@@ -112,7 +123,7 @@ A diferencia de Haskell, el menú usa el predicado `repeat/0` combinado con un c
 
 **4. Gestión de Tiempo**
 
-Idéntico al módulo Haskell: los tiempos se almacenan en minutos desde `00:00` y la permanencia se calcula con una resta simple.
+Los tiempos se almacenan en minutos desde `00:00` y la permanencia se calcula con una resta simple.
 
 ```prolog
 calcular_tiempo(E, S, T) :- T is S - E.
