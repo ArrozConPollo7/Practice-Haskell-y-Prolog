@@ -1,3 +1,4 @@
+Estudiante {idEst = "123456", entrada = 5, salida = 830}
 Estudiante {idEst = "102030", entrada = 480, salida = -1}
 Estudiante {idEst = "405060", entrada = 540, salida = 720}
 Estudiante {idEst = "708090", entrada = 600, salida = -1}
